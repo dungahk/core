@@ -32,7 +32,8 @@ trait EntityChangesDetectionTrait {
 
     // Computed fields should be skipped by the check for translation changes.
     foreach (array_diff_key($entity->getFieldDefinitions(), array_flip($fields)) as $field_name => $field_definition) {
-      if ($field_definition->isComputed()) {
+      $is_paragraph = $field_definition->getFieldStorageDefinition()->getSetting('target_type');
+      if ($field_definition->isComputed() || $is_paragraph) {
         $fields[] = $field_name;
       }
     }
