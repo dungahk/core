@@ -240,7 +240,7 @@ class BlockTest extends BlockTestBase {
     $this->assertRaw(t('Are you sure you want to remove the block @name?', ['@name' => $block->label()]));
     $this->drupalPostForm(NULL, [], t('Remove'));
     $this->assertRaw(t('The block %name has been removed.', ['%name' => $block->label()]));
-    $this->assertUrl('admin');
+    $this->assertSession()->addressEquals('admin');
     $this->assertNoRaw($block->id());
   }
 
@@ -261,7 +261,7 @@ class BlockTest extends BlockTestBase {
       $block['region'] = 'content';
       $this->drupalPostForm('admin/structure/block/add/system_powered_by_block', $block, t('Save block'));
       $this->assertText(t('The block configuration has been saved.'));
-      $this->assertUrl('admin/structure/block/list/' . $theme . '?block-placement=' . Html::getClass($block['id']));
+      $this->assertSession()->addressEquals('admin/structure/block/list/' . $theme . '?block-placement=' . Html::getClass($block['id']));
 
       // Set the default theme and ensure the block is placed.
       $theme_settings->set('default', $theme)->save();
@@ -376,12 +376,12 @@ class BlockTest extends BlockTestBase {
 
     // Prime the page cache.
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'MISS');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'MISS');
 
     // Verify a cache hit, but also the presence of the correct cache tags in
     // both the page and block caches.
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'HIT');
     $cid_parts = [Url::fromRoute('<front>', [], ['absolute' => TRUE])->toString(), ''];
     $cid = implode(':', $cid_parts);
     $cache_entry = \Drupal::cache('page')->get($cid);
@@ -409,20 +409,20 @@ class BlockTest extends BlockTestBase {
     $block->setRegion('content');
     $block->save();
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'MISS');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'MISS');
 
     // Now we should have a cache hit again.
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'HIT');
 
     // Place the "Powered by Drupal" block another time; verify a cache miss.
     $this->drupalPlaceBlock('system_powered_by_block', ['id' => 'powered-2']);
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'MISS');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'MISS');
 
     // Verify a cache hit, but also the presence of the correct cache tags.
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'HIT');
     $cid_parts = [Url::fromRoute('<front>', [], ['absolute' => TRUE])->toString(), ''];
     $cid = implode(':', $cid_parts);
     $cache_entry = \Drupal::cache('page')->get($cid);
@@ -458,14 +458,14 @@ class BlockTest extends BlockTestBase {
 
     // Now we should have a cache hit again.
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'HIT');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'HIT');
 
     // Delete the "Powered by Drupal" blocks; verify a cache miss.
     $block_storage = \Drupal::entityTypeManager()->getStorage('block');
     $block_storage->load('powered')->delete();
     $block_storage->load('powered-2')->delete();
     $this->drupalGet('<front>');
-    $this->assertEqual($this->drupalGetHeader('X-Drupal-Cache'), 'MISS');
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'MISS');
   }
 
   /**

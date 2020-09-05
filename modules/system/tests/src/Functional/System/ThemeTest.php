@@ -191,8 +191,7 @@ class ThemeTest extends BrowserTestBase {
     ];
     $this->drupalPostForm('admin/appearance/settings', $edit, t('Save configuration'));
 
-    $fields = $this->xpath($this->constructFieldXpath('name', 'logo_path'));
-    $uploaded_filename = 'public://' . $fields[0]->getValue();
+    $uploaded_filename = 'public://' . $this->getSession()->getPage()->findField('logo_path')->getValue();
 
     $this->drupalPlaceBlock('system_branding_block', ['region' => 'header']);
     $this->drupalGet('');
@@ -266,9 +265,9 @@ class ThemeTest extends BrowserTestBase {
     // cleared by installing a theme.
     $this->drupalLogout();
     $this->drupalGet('');
-    $this->assertEquals('MISS', $this->getSession()->getResponseHeader('X-Drupal-Cache'));
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'MISS');
     $this->drupalGet('');
-    $this->assertEquals('HIT', $this->getSession()->getResponseHeader('X-Drupal-Cache'));
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'HIT');
 
     $this->drupalLogin($this->adminUser);
     // Save Bartik's theme settings which should invalidate the 'rendered' cache
@@ -276,7 +275,7 @@ class ThemeTest extends BrowserTestBase {
     $this->drupalPostForm('admin/appearance/settings/bartik', [], t('Save configuration'));
     $this->drupalLogout();
     $this->drupalGet('');
-    $this->assertEquals('MISS', $this->getSession()->getResponseHeader('X-Drupal-Cache'));
+    $this->assertSession()->responseHeaderEquals('X-Drupal-Cache', 'MISS');
   }
 
   /**

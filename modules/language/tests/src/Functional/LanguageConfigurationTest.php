@@ -56,7 +56,7 @@ class LanguageConfigurationTest extends BrowserTestBase {
     ];
     $this->drupalPostForm(NULL, $edit, 'Add language');
     $this->assertText('French');
-    $this->assertUrl(Url::fromRoute('entity.configurable_language.collection', [], ['absolute' => TRUE])->toString(), [], 'Correct page redirection.');
+    $this->assertSession()->addressEquals(Url::fromRoute('entity.configurable_language.collection'));
     // Langcode for Languages is always 'en'.
     $language = $this->config('language.entity.fr')->get();
     $this->assertEqual($language['langcode'], 'en');
@@ -79,7 +79,7 @@ class LanguageConfigurationTest extends BrowserTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save configuration'));
     $this->rebuildContainer();
     $this->assertSession()->checkboxChecked('edit-site-default-language-fr');
-    $this->assertUrl(Url::fromRoute('entity.configurable_language.collection', [], ['absolute' => TRUE, 'langcode' => 'fr'])->toString(), [], 'Correct page redirection.');
+    $this->assertSession()->addressEquals(Url::fromRoute('entity.configurable_language.collection', [], ['langcode' => 'fr']));
 
     // Check if a valid language prefix is added after changing the default
     // language.
@@ -101,7 +101,7 @@ class LanguageConfigurationTest extends BrowserTestBase {
       'prefix[fr]' => '',
     ];
     $this->drupalPostForm(NULL, $edit, t('Save configuration'));
-    $this->assertNoText(t('The prefix may only be left blank for the selected detection fallback language.'), 'The path prefix can be removed for the default language');
+    $this->assertNoText('The prefix may only be left blank for the selected detection fallback language.', 'The path prefix can be removed for the default language');
 
     // Change default negotiation language.
     $this->config('language.negotiation')->set('selected_langcode', 'fr')->save();

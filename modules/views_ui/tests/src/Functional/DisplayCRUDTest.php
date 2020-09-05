@@ -117,8 +117,9 @@ class DisplayCRUDTest extends UITestBase {
 
     $this->drupalGet($path_prefix);
     $this->drupalPostForm(NULL, [], 'Duplicate Page');
+    // Verify that the user got redirected to the new display.
     $this->assertLinkByHref($path_prefix . '/page_2', 0, 'Make sure after duplicating the new display appears in the UI');
-    $this->assertUrl($path_prefix . '/page_2', [], 'The user got redirected to the new display.');
+    $this->assertSession()->addressEquals($path_prefix . '/page_2');
 
     // Set the title and override the css classes.
     $random_title = $this->randomMachineName();
@@ -129,9 +130,9 @@ class DisplayCRUDTest extends UITestBase {
     // Duplicate as a different display type.
     $this->drupalPostForm(NULL, [], 'Duplicate as Block');
     $this->assertLinkByHref($path_prefix . '/block_1', 0, 'Make sure after duplicating the new display appears in the UI');
-    $this->assertUrl($path_prefix . '/block_1', [], 'The user got redirected to the new display.');
+    $this->assertSession()->addressEquals($path_prefix . '/block_1');
     $this->assertText(t('Block settings'));
-    $this->assertNoText(t('Page settings'));
+    $this->assertNoText('Page settings');
 
     $this->drupalPostForm(NULL, [], t('Save'));
     $view = Views::getView($view['id']);

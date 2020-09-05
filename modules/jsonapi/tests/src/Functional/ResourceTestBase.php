@@ -27,6 +27,7 @@ use Drupal\Core\TypedData\TypedDataInternalPropertiesHelper;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\jsonapi\CacheableResourceResponse;
 use Drupal\jsonapi\JsonApiResource\LinkCollection;
 use Drupal\jsonapi\JsonApiResource\NullIncludedData;
 use Drupal\jsonapi\JsonApiResource\Link;
@@ -271,7 +272,6 @@ abstract class ResourceTestBase extends BrowserTestBase {
     }
 
     $entity_bundle = $entity->bundle();
-    $account_bundle = $account->bundle();
 
     // Add access-protected field.
     FieldStorageConfig::create([
@@ -906,7 +906,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     // - to first test all mistakes a developer might make, and assert that the
     //   error responses provide a good DX
     // - to eventually result in a well-formed request that succeeds.
-    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/jsonapi/issues/2878463.
+    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/drupal/issues/2878463.
     $url = Url::fromRoute(sprintf('jsonapi.%s.individual', static::$resourceTypeName), ['entity' => $this->entity->uuid()]);
     // $url = $this->entity->toUrl('jsonapi');
     $request_options = [];
@@ -1254,7 +1254,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     $cacheability = static::getExpectedCollectionCacheability($this->account, $collection, NULL, $filtered);
     $cacheability->setCacheMaxAge($merged_response->getCacheableMetadata()->getCacheMaxAge());
 
-    $collection_response = new ResourceResponse($merged_document);
+    $collection_response = new CacheableResourceResponse($merged_document);
     $collection_response->addCacheableDependency($cacheability);
 
     if (is_null($included_paths)) {
@@ -1669,7 +1669,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
    * @param \Drupal\Core\Entity\EntityInterface|null $entity
    *   (optional) The entity for which to get expected relationship response.
    *
-   * @return \Drupal\jsonapi\ResourceResponse
+   * @return \Drupal\jsonapi\CacheableResourceResponse
    *   The expected ResourceResponse.
    */
   protected function getExpectedGetRelationshipResponse($relationship_field_name, EntityInterface $entity = NULL) {
@@ -1694,7 +1694,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
       ->addCacheableDependency($entity)
       ->addCacheableDependency($access);
     $status_code = isset($expected_document['errors'][0]['status']) ? $expected_document['errors'][0]['status'] : 200;
-    $resource_response = new ResourceResponse($expected_document, $status_code);
+    $resource_response = new CacheableResourceResponse($expected_document, $status_code);
     $resource_response->addCacheableDependency($expected_cacheability);
     return $resource_response;
   }
@@ -1839,9 +1839,13 @@ abstract class ResourceTestBase extends BrowserTestBase {
           'url.site',
         ], $this->entity->getEntityType()->isRevisionable() ? ['url.query_args:resourceVersion'] : []);
         $cacheability = (new CacheableMetadata())->addCacheContexts($cache_contexts)->addCacheTags(['http_response']);
-        $related_response = isset($relationship_document['errors'])
-          ? $relationship_response
-          : (new ResourceResponse(static::getEmptyCollectionResponse(!is_null($relationship_document['data']), $self_link)->getResponseData()))->addCacheableDependency($cacheability);
+        if (isset($relationship_document['errors'])) {
+          $related_response = $relationship_response;
+        }
+        else {
+          $cardinality = is_null($relationship_document['data']) ? 1 : -1;
+          $related_response = (new CacheableResourceResponse(static::getEmptyCollectionResponse($cardinality, $self_link)->getResponseData()))->addCacheableDependency($cacheability);
+        }
       }
       else {
         $is_to_one_relationship = static::isResourceIdentifier($relationship_document['data']);
@@ -1857,7 +1861,8 @@ abstract class ResourceTestBase extends BrowserTestBase {
           $related_response = static::toCollectionResourceResponse($individual_responses, $self_link, !$is_to_one_relationship);
         }
         else {
-          $related_response = static::getEmptyCollectionResponse(!$is_to_one_relationship, $self_link);
+          $cardinality = $is_to_one_relationship ? 1 : -1;
+          $related_response = static::getEmptyCollectionResponse($cardinality, $self_link);
         }
       }
       $related_response->addCacheableDependency($relationship_response->getCacheableMetadata());
@@ -1986,7 +1991,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     if (get_class($this->entityStorage) !== ContentEntityNullStorage::class) {
       $created_entity = $this->entityLoadUnchanged(static::$firstCreatedEntityId);
       $uuid = $created_entity->uuid();
-      // @todo Remove line below in favor of commented line in https://www.drupal.org/project/jsonapi/issues/2878463.
+      // @todo Remove line below in favor of commented line in https://www.drupal.org/project/drupal/issues/2878463.
       $location = Url::fromRoute(sprintf('jsonapi.%s.individual', static::$resourceTypeName), ['entity' => $uuid]);
       if (static::$resourceTypeIsVersionable) {
         assert($created_entity instanceof RevisionableInterface);
@@ -2040,7 +2045,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     if ($this->entity->getEntityType()->getStorageClass() !== ContentEntityNullStorage::class && $this->entity->getEntityType()->hasKey('uuid')) {
       $second_created_entity = $this->entityStorage->load(static::$secondCreatedEntityId);
       $uuid = $second_created_entity->uuid();
-      // @todo Remove line below in favor of commented line in https://www.drupal.org/project/jsonapi/issues/2878463.
+      // @todo Remove line below in favor of commented line in https://www.drupal.org/project/drupal/issues/2878463.
       $location = Url::fromRoute(sprintf('jsonapi.%s.individual', static::$resourceTypeName), ['entity' => $uuid]);
       /* $location = $this->entityStorage->load(static::$secondCreatedEntityId)->toUrl('jsonapi')->setAbsolute(TRUE)->toString(); */
       if (static::$resourceTypeIsVersionable) {
@@ -2120,7 +2125,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     // - to first test all mistakes a developer might make, and assert that the
     //   error responses provide a good DX
     // - to eventually result in a well-formed request that succeeds.
-    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/jsonapi/issues/2878463.
+    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/drupal/issues/2878463.
     $url = Url::fromRoute(sprintf('jsonapi.%s.individual', static::$resourceTypeName), ['entity' => $this->entity->uuid()]);
     // $url = $this->entity->toUrl('jsonapi');
     $request_options = [];
@@ -2375,7 +2380,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     $updated_entity->setNewRevision();
     $updated_entity->save();
     $actual_response = $this->request('PATCH', $url, $request_options);
-    $this->assertResourceErrorResponse(400, 'Updating a resource object that has a working copy is not yet supported. See https://www.drupal.org/project/jsonapi/issues/2795279.', $url, $actual_response);
+    $this->assertResourceErrorResponse(400, 'Updating a resource object that has a working copy is not yet supported. See https://www.drupal.org/project/drupal/issues/2795279.', $url, $actual_response);
 
     // Allow PATCHing an unpublished default revision.
     $updated_entity->set('moderation_state', 'archived');
@@ -2416,7 +2421,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     // - to first test all mistakes a developer might make, and assert that the
     //   error responses provide a good DX
     // - to eventually result in a well-formed request that succeeds.
-    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/jsonapi/issues/2878463.
+    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/drupal/issues/2878463.
     $url = Url::fromRoute(sprintf('jsonapi.%s.individual', static::$resourceTypeName), ['entity' => $this->entity->uuid()]);
     // $url = $this->entity->toUrl('jsonapi');
     $request_options = [];
@@ -2699,7 +2704,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
       $request_options = NestedArray::mergeDeep($request_options, $this->getAuthenticationRequestOptions());
       $response = $this->request('GET', $url, $request_options);
       $detail = 'JSON:API does not yet support resource versioning for this resource type.';
-      $detail .= ' For context, see https://www.drupal.org/project/jsonapi/issues/2992833#comment-12818258.';
+      $detail .= ' For context, see https://www.drupal.org/project/drupal/issues/2992833#comment-12818258.';
       $detail .= ' To contribute, see https://www.drupal.org/project/drupal/issues/2350939 and https://www.drupal.org/project/drupal/issues/2809177.';
       $expected_cache_contexts = [
         'url.path',
@@ -2736,7 +2741,7 @@ abstract class ResourceTestBase extends BrowserTestBase {
     $entity->save();
     $latest_revision_id = (int) $entity->getRevisionId();
 
-    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/jsonapi/issues/2878463.
+    // @todo Remove line below in favor of commented line in https://www.drupal.org/project/drupal/issues/2878463.
     $url = Url::fromRoute(sprintf('jsonapi.%s.individual', static::$resourceTypeName), ['entity' => $this->entity->uuid()])->setAbsolute();
     // $url = $this->entity->toUrl('jsonapi');
     $collection_url = Url::fromRoute(sprintf('jsonapi.%s.collection', static::$resourceTypeName))->setAbsolute();
@@ -3172,15 +3177,15 @@ abstract class ResourceTestBase extends BrowserTestBase {
    * the expected cacheability for those includes. It does so based of responses
    * from the related routes for individual relationships.
    *
-   * @param \Drupal\jsonapi\ResourceResponse $expected_response
+   * @param \Drupal\jsonapi\CacheableResourceResponse $expected_response
    *   The expected ResourceResponse.
    * @param \Drupal\jsonapi\ResourceResponse[] $related_responses
    *   The related ResourceResponses, keyed by relationship field names.
    *
-   * @return \Drupal\jsonapi\ResourceResponse
+   * @return \Drupal\jsonapi\CacheableResourceResponse
    *   The decorated ResourceResponse.
    */
-  protected static function decorateExpectedResponseForIncludedFields(ResourceResponse $expected_response, array $related_responses) {
+  protected static function decorateExpectedResponseForIncludedFields(CacheableResourceResponse $expected_response, array $related_responses) {
     $expected_document = $expected_response->getResponseData();
     $expected_cacheability = $expected_response->getCacheableMetadata();
     foreach ($related_responses as $related_response) {
@@ -3207,17 +3212,17 @@ abstract class ResourceTestBase extends BrowserTestBase {
         }
       }
     }
-    return (new ResourceResponse($expected_document))->addCacheableDependency($expected_cacheability);
+    return (new CacheableResourceResponse($expected_document))->addCacheableDependency($expected_cacheability);
   }
 
   /**
    * Gets the expected individual ResourceResponse for GET.
    *
-   * @return \Drupal\jsonapi\ResourceResponse
+   * @return \Drupal\jsonapi\CacheableResourceResponse
    *   The expected individual ResourceResponse.
    */
   protected function getExpectedGetIndividualResourceResponse($status_code = 200) {
-    $resource_response = new ResourceResponse($this->getExpectedDocument(), $status_code);
+    $resource_response = new CacheableResourceResponse($this->getExpectedDocument(), $status_code);
     $cacheability = new CacheableMetadata();
     $cacheability->setCacheContexts($this->getExpectedCacheContexts());
     $cacheability->setCacheTags($this->getExpectedCacheTags());

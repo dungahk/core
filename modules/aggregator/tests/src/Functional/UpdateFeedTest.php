@@ -35,11 +35,10 @@ class UpdateFeedTest extends AggregatorTestBase {
       $this->assertText(t('The feed @name has been updated.', ['@name' => $edit['title[0][value]']]), new FormattableMarkup('The feed %name has been updated.', ['%name' => $edit['title[0][value]']]));
 
       // Verify that the creation message contains a link to a feed.
-      $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'aggregator/sources/']);
-      $this->assert(isset($view_link), 'The message area contains a link to a feed');
+      $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "aggregator/sources/")]');
 
       // Check feed data.
-      $this->assertUrl($feed->toUrl('canonical', ['absolute' => TRUE])->toString());
+      $this->assertSession()->addressEquals($feed->toUrl('canonical'));
       $this->assertTrue($this->uniqueFeed($edit['title[0][value]'], $edit['url[0][value]']), 'The feed is unique.');
 
       // Check feed source.

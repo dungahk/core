@@ -189,7 +189,7 @@ class NodeTypeTest extends NodeTestBase {
       t('%type is used by 1 piece of content on your site. You can not remove this content type until you have removed all of the %type content.', ['%type' => $type->label()]),
       'The content type will not be deleted until all nodes of that type are removed.'
     );
-    $this->assertNoText(t('This action cannot be undone.'), 'The node type deletion confirmation form is not available.');
+    $this->assertNoText('This action cannot be undone.', 'The node type deletion confirmation form is not available.');
 
     // Delete the node.
     $node->delete();
@@ -211,7 +211,7 @@ class NodeTypeTest extends NodeTestBase {
     // way installing a module through the UI does.
     $this->resetAll();
     $this->drupalGet('admin/structure/types/manage/default');
-    $this->assertSession()->linkNotExists(t('Delete'));
+    $this->assertSession()->linkNotExists('Delete');
     $this->drupalGet('admin/structure/types/manage/default/delete');
     $this->assertSession()->statusCodeEquals(403);
     $this->container->get('module_installer')->uninstall(['node_test_config']);

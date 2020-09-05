@@ -229,7 +229,7 @@ class PathAliasTest extends PathTestBase {
     $edit['alias[0][value]'] = $node5_alias . '/';
     $this->drupalPostForm('admin/config/search/path/add', $edit, t('Save'));
 
-    $this->assertUrl('admin/config/search/path/add');
+    $this->assertSession()->addressEquals('admin/config/search/path/add');
     $this->assertText('The source path has to start with a slash.');
     $this->assertText('The alias path has to start with a slash.');
   }
@@ -414,7 +414,7 @@ class PathAliasTest extends PathTestBase {
     // This error should still be present next to the field.
     $this->assertSession()->pageTextContains("The alias {$edit['path[0][alias]']} is already in use in this language.");
     // The validation error set for the page should include this text.
-    $this->assertSession()->pageTextContains(t('1 error has been found: URL alias'), 'Form error found with expected text.');
+    $this->assertSession()->pageTextContains('1 error has been found: URL alias');
     // The text 'URL alias' should be a link.
     $this->assertSession()->linkExists('URL alias');
     // The link should be to the ID of the URL alias field.

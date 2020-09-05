@@ -77,26 +77,26 @@ class UserBlocksTest extends BrowserTestBase {
     $edit['name'] = $user->getAccountName();
     $edit['pass'] = $user->passRaw;
     $this->drupalPostForm('admin/people/permissions', $edit, t('Log in'));
-    $this->assertNoText(t('User login'), 'Logged in.');
+    $this->assertNoText('User login', 'Logged in.');
 
     // Check that we are still on the same page.
-    $this->assertUrl(Url::fromRoute('user.admin_permissions', [], ['absolute' => TRUE])->toString(), [], 'Still on the same page after login for access denied page');
+    $this->assertSession()->addressEquals(Url::fromRoute('user.admin_permissions'));
 
     // Now, log out and repeat with a non-403 page.
     $this->drupalLogout();
     $this->drupalGet('filter/tips');
-    $this->assertEqual('MISS', $this->drupalGetHeader(DynamicPageCacheSubscriber::HEADER));
+    $this->assertSession()->responseHeaderEquals(DynamicPageCacheSubscriber::HEADER, 'MISS');
     $this->drupalPostForm(NULL, $edit, t('Log in'));
-    $this->assertNoText(t('User login'), 'Logged in.');
+    $this->assertNoText('User login', 'Logged in.');
     // Verify that we are still on the same page after login for allowed page.
     $this->assertSession()->responseMatches('!<title.*?Compose tips.*?</title>!');
 
     // Log out again and repeat with a non-403 page including query arguments.
     $this->drupalLogout();
     $this->drupalGet('filter/tips', ['query' => ['foo' => 'bar']]);
-    $this->assertEqual('HIT', $this->drupalGetHeader(DynamicPageCacheSubscriber::HEADER));
+    $this->assertSession()->responseHeaderEquals(DynamicPageCacheSubscriber::HEADER, 'HIT');
     $this->drupalPostForm(NULL, $edit, t('Log in'));
-    $this->assertNoText(t('User login'), 'Logged in.');
+    $this->assertNoText('User login', 'Logged in.');
     // Verify that we are still on the same page after login for allowed page.
     $this->assertSession()->responseMatches('!<title.*?Compose tips.*?</title>!');
     $this->assertStringContainsString('/filter/tips?foo=bar', $this->getUrl(), 'Correct query arguments are displayed after login');
@@ -104,9 +104,9 @@ class UserBlocksTest extends BrowserTestBase {
     // Repeat with different query arguments.
     $this->drupalLogout();
     $this->drupalGet('filter/tips', ['query' => ['foo' => 'baz']]);
-    $this->assertEqual('HIT', $this->drupalGetHeader(DynamicPageCacheSubscriber::HEADER));
+    $this->assertSession()->responseHeaderEquals(DynamicPageCacheSubscriber::HEADER, 'HIT');
     $this->drupalPostForm(NULL, $edit, t('Log in'));
-    $this->assertNoText(t('User login'), 'Logged in.');
+    $this->assertNoText('User login', 'Logged in.');
     // Verify that we are still on the same page after login for allowed page.
     $this->assertSession()->responseMatches('!<title.*?Compose tips.*?</title>!');
     $this->assertStringContainsString('/filter/tips?foo=baz', $this->getUrl(), 'Correct query arguments are displayed after login');
@@ -116,7 +116,7 @@ class UserBlocksTest extends BrowserTestBase {
     $this->drupalLogout();
     $this->drupalPostForm('http://example.com/', $edit, t('Log in'), ['external' => FALSE]);
     // Check that we remain on the site after login.
-    $this->assertUrl($user->toUrl('canonical', ['absolute' => TRUE])->toString(), [], 'Redirected to user profile page after login from the frontpage');
+    $this->assertSession()->addressEquals($user->toUrl('canonical'));
 
     // Verify that form validation errors are displayed immediately for forms
     // in blocks and not on subsequent page requests.
@@ -127,7 +127,7 @@ class UserBlocksTest extends BrowserTestBase {
     $this->drupalPostForm('filter/tips', $edit, t('Log in'));
     $this->assertText(t('Unrecognized username or password. Forgot your password?'));
     $this->drupalGet('filter/tips');
-    $this->assertNoText(t('Unrecognized username or password. Forgot your password?'));
+    $this->assertNoText('Unrecognized username or password. Forgot your password?');
   }
 
 }

@@ -173,11 +173,11 @@ class DisplayTest extends UITestBase {
     // The form redirects to the master display.
     $this->drupalGet($path);
 
-    $this->assertSession()->linkExists(t('Custom URL'), 0, 'The link option has custom URL as summary.');
+    $this->assertSession()->linkExists('Custom URL', 0, 'The link option has custom URL as summary.');
 
     // Test the default link_url value for new display
     $this->drupalPostForm(NULL, [], t('Add Block'));
-    $this->assertUrl('admin/structure/views/view/test_display/edit/block_2');
+    $this->assertSession()->addressEquals('admin/structure/views/view/test_display/edit/block_2');
     $this->clickLink(t('Custom URL'));
     $this->assertFieldByName('link_url', 'a-custom-url');
   }

@@ -107,7 +107,7 @@ class SearchConfigSettingsFormTest extends BrowserTestBase {
       'minimum_word_size' => $this->randomMachineName(3),
     ];
     $this->drupalPostForm('admin/config/search/pages', $edit, t('Save configuration'));
-    $this->assertNoText(t('The configuration options have been saved.'), 'Form does not save with an invalid word length.');
+    $this->assertNoText('The configuration options have been saved.', 'Form does not save with an invalid word length.');
 
     // Test logging setting. It should be off by default.
     $text = $this->randomMachineName(5);
@@ -323,7 +323,7 @@ class SearchConfigSettingsFormTest extends BrowserTestBase {
     // Disable the first search page.
     $this->clickLink(t('Disable'));
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->linkNotExists(t('Disable'));
+    $this->assertSession()->linkNotExists('Disable');
     $this->verifySearchPageOperations($first_id, TRUE, TRUE, FALSE, TRUE);
     $this->verifySearchPageOperations($second_id, TRUE, FALSE, FALSE, FALSE);
 

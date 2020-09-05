@@ -80,7 +80,7 @@ class MenuRouterTest extends BrowserTestBase {
   protected function doTestTitleCallbackFalse() {
     $this->drupalGet('test-page');
     $this->assertText('A title with @placeholder', 'Raw text found on the page');
-    $this->assertNoText(t('A title with @placeholder', ['@placeholder' => 'some other text']), 'Text with placeholder substitutions not found.');
+    $this->assertNoText('A title with some other text', 'Text with placeholder substitutions not found.');
   }
 
   /**
@@ -89,7 +89,7 @@ class MenuRouterTest extends BrowserTestBase {
   protected function doTestTitleMenuCallback() {
     // Verify that the menu router item title is not visible.
     $this->drupalGet('');
-    $this->assertNoText(t('Menu Callback Title'));
+    $this->assertNoText('Menu Callback Title');
     // Verify that the menu router item title is output as page title.
     $this->drupalGet('menu_callback_title');
     $this->assertText(t('Menu Callback Title'));
@@ -140,7 +140,7 @@ class MenuRouterTest extends BrowserTestBase {
     // Make sure that rebuilding the menu tree does not produce duplicates of
     // links added by hook_menu_links_discovered_alter().
     $this->drupalGet('menu-test');
-    $this->assertUniqueText('Custom link', 'Menu links added by hook_menu_links_discovered_alter() do not duplicate after a menu rebuild.');
+    $this->assertSession()->pageTextContainsOnce('Custom link');
   }
 
   /**
@@ -200,7 +200,7 @@ class MenuRouterTest extends BrowserTestBase {
       "éøïвβ中國書۞";
     $this->drupalGet($path);
     $this->assertRaw('This is the menuTestCallback content.');
-    $this->assertNoText(t('The website encountered an unexpected error. Please try again later.'));
+    $this->assertNoText('The website encountered an unexpected error. Please try again later.');
   }
 
   /**
@@ -230,11 +230,11 @@ class MenuRouterTest extends BrowserTestBase {
 
     $this->drupalGet('user/login');
     // Check that we got to 'user'.
-    $this->assertUrl($this->loggedInUser->toUrl('canonical', ['absolute' => TRUE])->toString());
+    $this->assertSession()->addressEquals($this->loggedInUser->toUrl('canonical'));
 
     // user/register should redirect to user/UID/edit.
     $this->drupalGet('user/register');
-    $this->assertUrl($this->loggedInUser->toUrl('edit-form', ['absolute' => TRUE])->toString());
+    $this->assertSession()->addressEquals($this->loggedInUser->toUrl('edit-form'));
   }
 
   /**

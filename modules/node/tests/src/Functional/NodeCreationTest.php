@@ -52,7 +52,7 @@ class NodeCreationTest extends NodeTestBase {
     $node_type_storage->load('article')->delete();
     $this->drupalGet('node/add');
     $this->assertSession()->statusCodeEquals(200);
-    $this->assertUrl('node/add/page');
+    $this->assertSession()->addressEquals('node/add/page');
     // Create a node.
     $edit = [];
     $edit['title[0][value]'] = $this->randomMachineName(8);
@@ -63,8 +63,7 @@ class NodeCreationTest extends NodeTestBase {
     $this->assertText(t('@post @title has been created.', ['@post' => 'Basic page', '@title' => $edit['title[0][value]']]), 'Basic page created.');
 
     // Verify that the creation message contains a link to a node.
-    $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'node/']);
-    $this->assert(isset($view_link), 'The message area contains a link to a node');
+    $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "node/")]');
 
     // Check that the node exists in the database.
     $node = $this->drupalGetNodeByTitle($edit['title[0][value]']);
@@ -147,15 +146,14 @@ class NodeCreationTest extends NodeTestBase {
     $this->drupalPostForm('node/add/page', $edit, t('Save'));
 
     // Check that the user was redirected to the home page.
-    $this->assertUrl('');
+    $this->assertSession()->addressEquals('');
     $this->assertText(t('Test page text'));
 
     // Confirm that the node was created.
     $this->assertText(t('@post @title has been created.', ['@post' => 'Basic page', '@title' => $edit['title[0][value]']]));
 
     // Verify that the creation message contains a link to a node.
-    $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'node/']);
-    $this->assert(isset($view_link), 'The message area contains a link to a node');
+    $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "node/")]');
   }
 
   /**

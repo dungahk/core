@@ -96,7 +96,7 @@ class LocaleImportFunctionalTest extends BrowserTestBase {
     $this->assertEqual(2, $locale_plurals, 'Plural number initialized.');
 
     // Ensure we were redirected correctly.
-    $this->assertUrl(Url::fromRoute('locale.translate_page', [], ['absolute' => TRUE])->toString(), [], 'Correct page redirection.');
+    $this->assertSession()->addressEquals(Url::fromRoute('locale.translate_page'));
 
     // Try importing a .po file with invalid tags.
     $this->importPoFile($this->getBadPoFile(), [
@@ -146,7 +146,7 @@ class LocaleImportFunctionalTest extends BrowserTestBase {
       'langcode' => 'fr',
       'files[file]' => $name,
     ], t('Import'));
-    $this->assertUrl(Url::fromRoute('locale.translate_import', [], ['absolute' => TRUE])->toString(), [], 'Correct page redirection.');
+    $this->assertSession()->addressEquals(Url::fromRoute('locale.translate_import'));
     $this->assertText(t('File to import not found.'), 'File to import not found message.');
 
     // Try importing a .po file with overriding strings, and ensure existing
@@ -186,7 +186,7 @@ class LocaleImportFunctionalTest extends BrowserTestBase {
       'translation' => 'translated',
     ];
     $this->drupalPostForm('admin/config/regional/translate', $search, t('Filter'));
-    $this->assertNoText(t('No strings available.'), 'String overwritten by imported string.');
+    $this->assertNoText('No strings available.', 'String overwritten by imported string.');
     // This import should have changed number of plural forms.
     $locale_plurals = \Drupal::service('locale.plural.formula')->reset()->getNumberOfPlurals('fr');
     $this->assertEqual(3, $locale_plurals, 'Plural numbers changed.');
@@ -245,7 +245,7 @@ class LocaleImportFunctionalTest extends BrowserTestBase {
       'translation' => 'translated',
     ];
     $this->drupalPostForm('admin/config/regional/translate', $search, t('Filter'));
-    $this->assertNoText(t('No strings available.'), 'Customized string overwritten by imported string.');
+    $this->assertNoText('No strings available.', 'Customized string overwritten by imported string.');
 
   }
 

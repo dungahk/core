@@ -171,16 +171,14 @@ class ContactSitewideTest extends BrowserTestBase {
     $this->assertText(t('Contact form @label has been added.', ['@label' => $label]));
 
     // Verify that the creation message contains a link to a contact form.
-    $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'contact/']);
-    $this->assert(isset($view_link), 'The message area contains a link to a contact form.');
+    $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "contact/")]');
 
     // Create first valid form.
     $this->addContactForm($id = mb_strtolower($this->randomMachineName(16)), $label = $this->randomMachineName(16), implode(',', [$recipients[0]]), '', TRUE);
     $this->assertText(t('Contact form @label has been added.', ['@label' => $label]));
 
     // Verify that the creation message contains a link to a contact form.
-    $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'contact/']);
-    $this->assert(isset($view_link), 'The message area contains a link to a contact form.');
+    $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "contact/")]');
 
     // Check that the form was created in site default language.
     $langcode = $this->config('contact.form.' . $id)->get('langcode');
@@ -188,7 +186,7 @@ class ContactSitewideTest extends BrowserTestBase {
     $this->assertEqual($langcode, $default_langcode);
 
     // Make sure the newly created form is included in the list of forms.
-    $this->assertNoUniqueText($label, 'New form included in forms list.');
+    $this->assertSession()->pageTextMatchesCount(2, '/' . $label . '/');
 
     // Ensure that the recipient email is escaped on the listing.
     $this->drupalGet('admin/structure/contact');
@@ -214,7 +212,7 @@ class ContactSitewideTest extends BrowserTestBase {
     $this->drupalLogout();
     $this->drupalGet('contact');
     $this->assertText(t('Your email address'));
-    $this->assertNoText(t('Form'));
+    $this->assertNoText('Form');
     $this->drupalLogin($admin_user);
 
     // Add more forms.
@@ -226,7 +224,7 @@ class ContactSitewideTest extends BrowserTestBase {
 
     // Try adding a form that already exists.
     $this->addContactForm($name, $label, '', '', FALSE);
-    $this->assertNoText(t('Contact form @label has been added.', ['@label' => $label]));
+    $this->assertNoText("Contact form $label has been added.");
     $this->assertRaw(t('The machine-readable name is already in use. It must be unique.'));
 
     $this->drupalLogout();
@@ -359,7 +357,7 @@ class ContactSitewideTest extends BrowserTestBase {
     ];
     $this->drupalPostForm(NULL, $edit, t('Send message'));
     $this->assertText('Thanks for your submission.');
-    $this->assertUrl('user/' . $admin_user->id());
+    $this->assertSession()->addressEquals('user/' . $admin_user->id());
 
     // Test Empty message.
     /** @var \Drupal\contact\ContactFormInterface $form */
@@ -380,7 +378,7 @@ class ContactSitewideTest extends BrowserTestBase {
     $this->drupalPostForm(NULL, $edit, t('Send message'));
     $result = $this->xpath('//div[@role=:role]', [':role' => 'contentinfo']);
     $this->assertCount(0, $result, 'Messages not found.');
-    $this->assertUrl('user/' . $admin_user->id());
+    $this->assertSession()->addressEquals('user/' . $admin_user->id());
 
     // Test preview and visibility of the message field and label. Submit the
     // contact form and verify the content.

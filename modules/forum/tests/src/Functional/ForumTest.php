@@ -189,9 +189,9 @@ class ForumTest extends BrowserTestBase {
 
     // Verify that this user is shown a local task to add new forum content.
     $this->drupalGet('forum');
-    $this->assertSession()->linkExists(t('Add new Forum topic'));
+    $this->assertSession()->linkExists('Add new Forum topic');
     $this->drupalGet('forum/' . $this->forum['tid']);
-    $this->assertSession()->linkExists(t('Add new Forum topic'));
+    $this->assertSession()->linkExists('Add new Forum topic');
 
     // Log in a user with permission to edit any forum content.
     $this->drupalLogin($this->editAnyTopicsUser);
@@ -260,7 +260,7 @@ class ForumTest extends BrowserTestBase {
     // Test anonymous action link.
     $this->drupalLogout();
     $this->drupalGet('forum/' . $this->forum['tid']);
-    $this->assertSession()->linkExists(t('Log in to post new content in the forum.'));
+    $this->assertSession()->linkExists('Log in to post new content in the forum.');
   }
 
   /**
@@ -369,7 +369,7 @@ class ForumTest extends BrowserTestBase {
     // Test tags vocabulary form is not affected.
     $this->drupalGet('admin/structure/taxonomy/manage/tags');
     $this->assertSession()->buttonExists('Save');
-    $this->assertSession()->linkExists(t('Delete'));
+    $this->assertSession()->linkExists('Delete');
     // Test tags vocabulary term form is not affected.
     $this->drupalGet('admin/structure/taxonomy/manage/tags/add');
     $this->assertSession()->fieldExists('parent[]');
@@ -449,8 +449,7 @@ class ForumTest extends BrowserTestBase {
     );
 
     // Verify that the creation message contains a link to a term.
-    $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'term/']);
-    $this->assert(isset($view_link), 'The message area contains a link to a term');
+    $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "term/")]');
 
     /** @var \Drupal\taxonomy\TermStorageInterface $taxonomy_term_storage */
     $taxonomy_term_storage = $this->container->get('entity_type.manager')->getStorage('taxonomy_term');
@@ -581,7 +580,7 @@ class ForumTest extends BrowserTestBase {
 
     $type = t('Forum topic');
     if ($container) {
-      $this->assertNoText(t('@type @title has been created.', ['@type' => $type, '@title' => $title]), 'Forum topic was not created');
+      $this->assertNoText("$type $title has been created.", 'Forum topic was not created');
       $this->assertRaw(t('The item %title is a forum container, not a forum.', ['%title' => $forum['name']]), 'Error message was shown');
       return;
     }
@@ -589,9 +588,8 @@ class ForumTest extends BrowserTestBase {
       $this->assertText(t('@type @title has been created.', ['@type' => $type, '@title' => $title]), 'Forum topic was created');
       $this->assertNoRaw(t('The item %title is a forum container, not a forum.', ['%title' => $forum['name']]), 'No error message was shown');
 
-      // Verify that the creation message contains a link to a term.
-      $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'term/']);
-      $this->assert(isset($view_link), 'The message area contains a link to a term');
+      // Verify that the creation message contains a link to a node.
+      $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "node/")]');
     }
 
     // Retrieve node object, ensure that the topic was created and in the proper forum.

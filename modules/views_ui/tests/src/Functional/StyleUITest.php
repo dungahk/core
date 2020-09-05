@@ -51,7 +51,7 @@ class StyleUITest extends UITestBase {
     $this->assertFieldByName('style_options[test_option]', $random_name, 'Make sure the custom settings form field has the expected value stored.');
 
     $this->drupalPostForm($view_edit_url, [], t('Save'));
-    $this->assertSession()->linkExists(t('Test style plugin'), 0, 'Make sure the test style plugin is shown in the UI');
+    $this->assertSession()->linkExists('Test style plugin', 0, 'Make sure the test style plugin is shown in the UI');
 
     $view = Views::getView($view_name);
     $view->initDisplay();
@@ -64,7 +64,7 @@ class StyleUITest extends UITestBase {
     $this->drupalPostForm("admin/structure/views/view/$view_name/edit", [], 'Add Page');
     $this->drupalPostForm("admin/structure/views/nojs/display/$view_name/page_1/row", ['row[type]' => 'fields'], t('Apply'));
     // If fields are being used this text will not be shown.
-    $this->assertNoText(t('The selected style or row format does not use fields.'));
+    $this->assertNoText('The selected style or row format does not use fields.');
   }
 
 }

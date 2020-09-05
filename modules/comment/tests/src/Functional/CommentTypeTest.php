@@ -114,7 +114,8 @@ class CommentTypeTest extends CommentTestBase {
     $this->drupalGet('admin/structure/comment');
     $this->assertRaw('Bar', 'New name was displayed.');
     $this->clickLink('Manage fields');
-    $this->assertUrl(Url::fromRoute('entity.comment.field_ui_fields', ['comment_type' => 'comment'], ['absolute' => TRUE])->toString(), [], 'Original machine name was used in URL.');
+    // Verify that the original machine name was used in the URL.
+    $this->assertSession()->addressEquals(Url::fromRoute('entity.comment.field_ui_fields', ['comment_type' => 'comment']));
     $this->assertCount(1, $this->cssSelect('tr#comment-body'), 'Body field exists.');
 
     // Remove the body field.
@@ -167,7 +168,7 @@ class CommentTypeTest extends CommentTestBase {
       ]),
       'The comment type will not be deleted until all fields of that type are removed.'
     );
-    $this->assertNoText(t('This action cannot be undone.'), 'The comment type deletion confirmation form is not available.');
+    $this->assertNoText('This action cannot be undone.', 'The comment type deletion confirmation form is not available.');
 
     // Delete the comment and the field.
     $comment->delete();

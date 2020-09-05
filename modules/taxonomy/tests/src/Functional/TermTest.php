@@ -220,9 +220,11 @@ class TermTest extends TaxonomyTestBase {
 
     // Preview the node.
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Preview'));
-    $this->assertUniqueText($term2->getName(), 'Term is displayed when previewing the node.');
+    // Ensure that term is displayed when previewing the node.
+    $this->assertSession()->pageTextContainsOnce($term2->getName());
     $this->drupalPostForm('node/' . $node->id() . '/edit', NULL, t('Preview'));
-    $this->assertUniqueText($term2->getName(), 'Term is displayed when previewing the node again.');
+    // Ensure that term is displayed when previewing the node again.
+    $this->assertSession()->pageTextContainsOnce($term2->getName());
   }
 
   /**
@@ -277,8 +279,7 @@ class TermTest extends TaxonomyTestBase {
     $this->assertText(t('@type @title has been created.', ['@type' => t('Article'), '@title' => $edit['title[0][value]']]), 'The node was created successfully.');
 
     // Verify that the creation message contains a link to a node.
-    $view_link = $this->xpath('//div[@class="messages"]//a[contains(@href, :href)]', [':href' => 'node/']);
-    $this->assert(isset($view_link), 'The message area contains a link to a node');
+    $this->assertSession()->elementExists('xpath', '//div[@data-drupal-messages]//a[contains(@href, "node/")]');
 
     foreach ($terms as $term) {
       $this->assertText($term, 'The term was saved and appears on the node page.');
@@ -358,7 +359,7 @@ class TermTest extends TaxonomyTestBase {
     // Check that the term is still present at admin UI after edit.
     $this->drupalGet('admin/structure/taxonomy/manage/' . $this->vocabulary->id() . '/overview');
     $this->assertText($edit['name[0][value]'], 'The randomly generated term name is present.');
-    $this->assertSession()->linkExists(t('Edit'));
+    $this->assertSession()->linkExists('Edit');
 
     // Check the term link can be clicked through to the term page.
     $this->clickLink($edit['name[0][value]']);
@@ -453,7 +454,7 @@ class TermTest extends TaxonomyTestBase {
     // Submit confirmation form.
     $this->drupalPostForm(NULL, [], t('Reset to alphabetical'));
     // Ensure form redirected back to overview.
-    $this->assertUrl('admin/structure/taxonomy/manage/' . $this->vocabulary->id() . '/overview');
+    $this->assertSession()->addressEquals('admin/structure/taxonomy/manage/' . $this->vocabulary->id() . '/overview');
 
     $taxonomy_storage->resetCache();
     $terms = $taxonomy_storage->loadTree($this->vocabulary->id(), 0, NULL, TRUE);

@@ -120,7 +120,6 @@ trait DeprecationListenerTrait {
       "The \"Drupal\Tests\Listeners\DrupalListener\" class uses \"PHPUnit\Framework\TestListenerDefaultImplementation\" that is deprecated The `TestListener` interface is deprecated.",
       "The \"PHPUnit\Framework\TestSuite\" class is considered internal This class is not covered by the backward compatibility promise for PHPUnit. It may change without further notice. You should not use it from \"Drupal\Tests\TestSuites\TestSuiteBase\".",
       // Simpletest's legacy assertion methods.
-      'AssertLegacyTrait::assert() is deprecated in drupal:8.0.0 and is removed from drupal:10.0.0. Use $this->assertTrue() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertEqual() is deprecated in drupal:8.0.0 and is removed from drupal:10.0.0. Use $this->assertEquals() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertNotEqual() is deprecated in drupal:8.0.0 and is removed from drupal:10.0.0. Use $this->assertNotEquals() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertIdentical() is deprecated in drupal:8.0.0 and is removed from drupal:10.0.0. Use $this->assertSame() instead. See https://www.drupal.org/node/3129738',
@@ -128,8 +127,6 @@ trait DeprecationListenerTrait {
       'AssertLegacyTrait::assertText() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->responseContains() or $this->assertSession()->pageTextContains() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertNoText() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->responseNotContains() or $this->assertSession()->pageTextNotContains() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertText() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->pageTextContains() or $this->assertSession()->pageTextNotContains() instead. See https://www.drupal.org/node/3129738',
-      'AssertLegacyTrait::assertUniqueText() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->getSession()->getPage()->getText() and substr_count() instead. See https://www.drupal.org/node/3129738',
-      'AssertLegacyTrait::assertNoUniqueText() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->getSession()->getPage()->getText() and substr_count() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertFieldByName() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->fieldExists() or $this->assertSession()->buttonExists() or $this->assertSession()->fieldValueEquals() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertNoFieldByName() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->fieldNotExists() or $this->assertSession()->buttonNotExists() or $this->assertSession()->fieldValueNotEquals() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertFieldById() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->fieldExists() or $this->assertSession()->buttonExists() or $this->assertSession()->fieldValueEquals() instead. See https://www.drupal.org/node/3129738',
@@ -138,11 +135,9 @@ trait DeprecationListenerTrait {
       'AssertLegacyTrait::assertLinkByHref() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->linkByHrefExists() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertNoLinkByHref() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->linkByHrefNotExists() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertNoFieldById() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->fieldNotExists() or $this->assertSession()->buttonNotExists() or $this->assertSession()->fieldValueNotEquals() instead. See https://www.drupal.org/node/3129738',
-      'AssertLegacyTrait::assertUrl() is deprecated in drupal:8.2.0 and is removed from drupal:10.0.0. Use $this->assertSession()->addressEquals() instead. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertFieldByXPath() is deprecated in drupal:8.3.0 and is removed from drupal:10.0.0. Use $this->xpath() instead and check the values directly in the test. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertNoFieldByXPath() is deprecated in drupal:8.3.0 and is removed from drupal:10.0.0. Use $this->xpath() instead and assert that the result is empty. See https://www.drupal.org/node/3129738',
       'AssertLegacyTrait::assertFieldsByValue() is deprecated in drupal:8.3.0 and is removed from drupal:10.0.0. Use iteration over the fields yourself instead and directly check the values in the test. See https://www.drupal.org/node/3129738',
-      'AssertLegacyTrait::constructFieldXpath() is deprecated in drupal:8.5.0 and is removed from drupal:10.0.0. Use $this->getSession()->getPage()->findField() instead. See https://www.drupal.org/node/3129738',
     ];
   }
 

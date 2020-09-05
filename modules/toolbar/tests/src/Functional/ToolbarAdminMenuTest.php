@@ -310,7 +310,7 @@ class ToolbarAdminMenuTest extends BrowserTestBase {
       'translation' => 'untranslated',
     ];
     $this->drupalPostForm('admin/config/regional/translate', $search, t('Filter'));
-    $this->assertNoText(t('No strings available'));
+    $this->assertNoText('No strings available');
     $this->assertText($name, 'Search found the string as untranslated.');
 
     // Assume this is the only result.
@@ -322,7 +322,8 @@ class ToolbarAdminMenuTest extends BrowserTestBase {
     ];
     $this->drupalPostForm('admin/config/regional/translate', $edit, t('Save translations'));
     $this->assertText(t('The strings have been saved.'), 'The strings have been saved.');
-    $this->assertUrl(Url::fromRoute('locale.translate_page', [], ['absolute' => TRUE])->toString(), [], 'Correct page redirection.');
+    // Verify that the user is redirected to the correct page.
+    $this->assertSession()->addressEquals(Url::fromRoute('locale.translate_page'));
     $this->drupalLogout();
 
     // Log in the adminUser. Check the admin menu subtrees hash now that one

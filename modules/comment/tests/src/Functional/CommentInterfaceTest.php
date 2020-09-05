@@ -32,7 +32,7 @@ class CommentInterfaceTest extends CommentTestBase {
     // Make sure that comment field title is not displayed when there's no
     // comments posted.
     $this->drupalGet($this->node->toUrl());
-    $this->assertSession()->responseNotMatches('@<h2[^>]*>Comments</h2>@', 'Comments title is not displayed.');
+    $this->assertSession()->responseNotMatches('@<h2[^>]*>Comments</h2>@');
 
     // Set comments to have subject and preview disabled.
     $this->setCommentPreview(DRUPAL_DISABLED);
@@ -101,7 +101,8 @@ class CommentInterfaceTest extends CommentTestBase {
 
     // Test changing the comment author to "Anonymous".
     $comment = $this->postComment(NULL, $comment->comment_body->value, $comment->getSubject(), ['uid' => '']);
-    $this->assertTrue($comment->getAuthorName() == t('Anonymous') && $comment->getOwnerId() == 0, 'Comment author successfully changed to anonymous.');
+    $this->assertTrue($comment->getAuthorName() == 'Anonymous', 'Comment author successfully changed to anonymous.');
+    $this->assertTrue($comment->getOwnerId() == 0, 'Comment author successfully changed to anonymous.');
 
     // Test changing the comment author to an unverified user.
     $random_name = $this->randomMachineName();
@@ -124,7 +125,7 @@ class CommentInterfaceTest extends CommentTestBase {
     // \Drupal\comment\Controller\CommentController::redirectNode().
     $this->drupalGet('comment/' . $this->node->id() . '/reply');
     // Verify we were correctly redirected.
-    $this->assertUrl(Url::fromRoute('comment.reply', ['entity_type' => 'node', 'entity' => $this->node->id(), 'field_name' => 'comment'], ['absolute' => TRUE])->toString());
+    $this->assertSession()->addressEquals(Url::fromRoute('comment.reply', ['entity_type' => 'node', 'entity' => $this->node->id(), 'field_name' => 'comment']));
     $this->drupalGet('comment/reply/node/' . $this->node->id() . '/comment/' . $comment->id());
     $this->assertText($subject_text, 'Individual comment-reply subject found.');
     $this->assertText($comment_text, 'Individual comment-reply body found.');
